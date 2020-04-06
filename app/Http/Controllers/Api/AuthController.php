@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController as BaseController;
 use App\User;
+use App\Profile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Validator;
@@ -20,26 +21,33 @@ class AuthController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'surname' => 'required',
-            'cellphone' => 'required|numeric|digits:10',
-            'branch_id' => 'required',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
         ]);
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
+
+        if ($validator->fails()) {
+            return response()->json([
+                'data' => [
+                    'message' => 'User - Create User Failed.'
+                ]
+            ], 400);
         }
+
         $input = $request->all();
+        $input['password'] = Hash::make($input['password']);
         $user = User::create($input);
+        $user->profile()->save(new Profile);
 
-        //TODO: get admin for this store
-        //send mail to admin
-        //Mail::to('mokgosi@gmail.com')->send(new NewUserRegistration($user));
-
-        return $this->sendResponse($user, 'Account created successfully.');
+        return response()->json([
+            'data' => [
+                'message' => 'User - Created Successfully.'
+            ]
+        ], 201);
     }
 
-    public function login (Request $request)
+    public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::with('profile')->where('email', $request->email)->first();
 
         if ($user) {
 
@@ -48,7 +56,7 @@ class AuthController extends BaseController
                 //handle token exception
                 try {
                     $token = $user->createToken('Password Grant Client')->accessToken;
-                    $response = ['token' => $token];
+                    $response = ['user'=>$user, 'token' => $token];
                 } catch (\Exception $e) {
                     $response['error'] = 'Personal access client not found. Please create one.';
                     return response($response, 422);
@@ -65,7 +73,7 @@ class AuthController extends BaseController
         }
     }
 
-    public function logout (Request $request)
+    public function logout(Request $request)
     {
         $token = $request->user()->token();
         $token->revoke();

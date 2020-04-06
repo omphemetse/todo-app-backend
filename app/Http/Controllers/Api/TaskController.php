@@ -35,7 +35,11 @@ class TaskController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Failed'], 400);
+            return response()->json([
+                'data' => [
+                    'message' => 'Task - Create Task Failed.'
+                ]
+            ], 400);
         }
 
         $input['user_id'] = auth()->user()->id;
@@ -46,17 +50,6 @@ class TaskController extends Controller
                 'message' => 'Success',
                 'id' => $task->id,]
         ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param \App\Task $task
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Task $task)
-    {
-        //
     }
 
     /**
@@ -79,7 +72,11 @@ class TaskController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['message' => 'Task - Update Failed.'], 400);
+                return response()->json([
+                    'data' => [
+                        'message' => 'Task - Update Failed.'
+                    ]
+                ], 400);
             }
             $task->title = $request->input('title');
             $task->save();
@@ -98,6 +95,31 @@ class TaskController extends Controller
     }
 
     /**
+     * @param \Illuminate\Http\Request $request
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
+    public function complete(Request $request, $id)
+    {
+        $task = Task::find($id);
+        if ($task) {
+            $task->complete = $request->input('complete');
+            $task->save();
+            return response()->json([
+                'data' => [
+                    'message' => 'Task - Updated Successfully.'
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'data' => [
+                    'message' => 'Task - Not found.'
+                ]
+            ], 404);
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  $id
@@ -105,14 +127,16 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        $task = Task::where('id', $id)->first();
+        $task = Task::find($id);
 
         if ($task) {
             $task->delete();
-            return response()->json(['data'=>$task], 200);
+            return response()->json(['data' => $task], 200);
         } else {
             return response()->json([
-                'message' => 'Task not found.'
+                'data' => [
+                    'message' => 'Task - Not found.'
+                ]
             ], 404);
         }
     }

@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'v1'], function () {
 
     //public routes
-    Route::post('/login', 'Api\AuthController@login')->name('login.api');
-    Route::post('/register', 'Api\AuthController@register')->name('register.api');
+    Route::post('/login', 'Api\AuthController@login')->name('api.login');
+    Route::post('/register', 'Api\AuthController@register')->name('api.register');
 
     //private routes
     Route::middleware('auth:api')->group(function () {
@@ -25,5 +25,9 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/tasks/new', 'Api\TaskController@store')->name('api.tasks.new');
         Route::delete('/tasks/{id}', 'Api\TaskController@destroy')->name('api.tasks.delete');
         Route::put('/tasks/{id}', 'Api\TaskController@update')->name('api.tasks.update');
+        Route::patch('/tasks/{id}', 'Api\TaskController@complete')->name('api.tasks.complete');
+
+        Route::patch('/profile/{id}', 'Api\ProfileController@update')->name('api.profile.update');
+
     });
 });
