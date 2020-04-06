@@ -68,11 +68,12 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $task = Task::where('id', $id)->first();
+        $task = Task::find($id);
 
         if ($task) {
+
             $input = $request->all();
-dd($input);
+
             $validator = Validator::make($input, [
                 'title' => 'required',
             ]);
