@@ -12,12 +12,11 @@ class ProfileController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $profile = Profile::find($id);
+        $profile = Profile::where('user_id', auth()->user()->id)->first();
 
         $profile->first_name = $request->input('first_name');
         $profile->last_name = $request->input('last_name');

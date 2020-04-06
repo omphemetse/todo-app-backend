@@ -27,7 +27,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::put('/tasks/{id}', 'Api\TaskController@update')->name('api.tasks.update');
         Route::patch('/tasks/{id}', 'Api\TaskController@complete')->name('api.tasks.complete');
 
-        Route::patch('/profile/{id}', 'Api\ProfileController@update')->name('api.profile.update');
+        Route::put('/profile', 'Api\ProfileController@update')->name('api.profile.update');
 
     });
 });
